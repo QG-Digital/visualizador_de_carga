@@ -39,4 +39,4 @@ Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICE
 
 ---
 
-Desenvolvido com ❤️ por [Felipe Indejejczak](https://github.com/FelipeInde)
+Desenvolvido com ❤️ por [Felipe Indejejczak](https://github.com/QG-Digital)
