@@ -2,8 +2,6 @@
 
 Um sistema interativo para visualização e cálculo de cargas em caminhões ou bitrens em três dimensões, desenvolvido para auxiliar no planejamento logístico e transporte de mercadorias.
 
-![Preview](https://via.placeholder.com/800x400?text=Visualizador+3D+de+Carga+para+Caminhões) <!-- Substitua por uma imagem real -->
-
 ## ✨ Funcionalidades Principais
 
 - 🖥️ Visualização 3D realista de caminhões e pacotes com Three.js
