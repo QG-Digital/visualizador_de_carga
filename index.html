@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <!-- Canvas para o efeito de partículas -->
+    <canvas id="particle-canvas"></canvas>
+
     <!-- Botão WhatsApp Flutuante -->
     <a id="whatsapp-btn" href="https://wa.me/5543996349824?text=Opa%2C%20cheguei%20de%20paraquedas%20pelo%20site%20do%20Visualizador%20de%20Carga!!" target="_blank" rel="noopener noreferrer" title="Fale comigo no WhatsApp">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -19,42 +22,110 @@
         <!-- HEADER -->
         <header class="header">
             <div class="header-content">
-                <div class="truck-icon">🚛</div>
-                <h1>Visualizador 3D de Carga</h1>
+                <div class="title-group">
+                    <h1>Visualizador 3D de Carga</h1>
+                    <div class="truck-icon">🚛</div>
+                </div>
             </div>
         </header>
 
         <main class="main-content">
             <!-- PAINEL DE CONTROLE -->
             <aside id="control-panel">
+                <!-- SEÇÃO DE CONFIGURAÇÕES AVANÇADAS -->
+                <section class="panel-section">
+                    <div class="section-header">
+                        <div class="section-title-group">
+                            <span class="section-icon">⚙️</span>
+                            <h2>Configurações Avançadas</h2>
+                        </div>
+                    </div>
+                    <div class="advanced-options">
+                        <div class="option-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="weight-mode-toggle">
+                                <span class="slider"></span>
+                            </label>
+                            <div class="option-info">
+                                <span class="option-title">Modo Peso</span>
+                                <span class="option-desc">Controla capacidade por peso</span>
+                            </div>
+                        </div>
+                        <div class="option-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="bitrem-mode-toggle">
+                                <span class="slider"></span>
+                            </label>
+                            <div class="option-info">
+                                <span class="option-title">Modo Bi-Trem</span>
+                                <span class="option-desc">Dois compartimentos separados</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SEÇÃO DE DIMENSÕES DO CAMINHÃO -->
                 <section class="panel-section">
                     <div class="section-header">
                         <div class="section-title-group">
                             <span class="section-icon">📏</span>
-                            <h2>Dimensões do Caminhão (cm)</h2>
+                            <h2 id="truck-dimensions-title">Dimensões do Caminhão (cm)</h2>
                         </div>
                     </div>
-                    <div class="input-row">
-                        <label for="truck-length">Comprimento:</label>
-                        <input type="number" id="truck-length" value="550">
-                    </div>
-                    <div class="input-row">
-                        <label for="truck-width">Largura:</label>
-                        <input type="number" id="truck-width" value="220">
-                    </div>
-                    <div class="input-row">
-                        <label for="truck-height">Altura:</label>
-                        <input type="number" id="truck-height" value="260">
+                    <div id="truck-dimensions-container">
+                        <!-- Caminhão Principal -->
+                        <div class="truck-section" id="truck-main">
+                            <h3 class="truck-section-title" id="main-truck-title">Caminhão</h3>
+                            <div class="input-row">
+                                <label for="truck-length">Comprimento:</label>
+                                <input type="number" id="truck-length" value="550">
+                            </div>
+                            <div class="input-row">
+                                <label for="truck-width">Largura:</label>
+                                <input type="number" id="truck-width" value="220">
+                            </div>
+                            <div class="input-row">
+                                <label for="truck-height">Altura:</label>
+                                <input type="number" id="truck-height" value="260">
+                            </div>
+                            <!-- Campo de peso (oculto por padrão) -->
+                            <div class="input-row weight-field" id="truck-weight-row" style="display: none;">
+                                <label for="truck-weight">Peso Máx (kg):</label>
+                                <input type="number" id="truck-weight" value="10000">
+                            </div>
+                        </div>
+
+                        <!-- Segundo Caminhão (Bi-Trem) -->
+                        <div class="truck-section" id="truck-second" style="display: none;">
+                            <h3 class="truck-section-title">Segundo Compartimento</h3>
+                            <div class="input-row">
+                                <label for="truck2-length">Comprimento:</label>
+                                <input type="number" id="truck2-length" value="550">
+                            </div>
+                            <div class="input-row">
+                                <label for="truck2-width">Largura:</label>
+                                <input type="number" id="truck2-width" value="220">
+                            </div>
+                            <div class="input-row">
+                                <label for="truck2-height">Altura:</label>
+                                <input type="number" id="truck2-height" value="260">
+                            </div>
+                            <!-- Campo de peso para segundo caminhão -->
+                            <div class="input-row weight-field" id="truck2-weight-row" style="display: none;">
+                                <label for="truck2-weight">Peso Máx (kg):</label>
+                                <input type="number" id="truck2-weight" value="10000">
+                            </div>
+                        </div>
                     </div>
                 </section>
 
+                <!-- SEÇÃO DE PACOTES -->
                 <section class="panel-section">
                     <div class="section-header">
                         <div class="section-title-group">
                             <span class="section-icon">📦</span>
                             <h2>Configuração de Pacotes</h2>
                         </div>
-                        <!-- BOTÃO DE ADICIONAR AGORA ESTÁ AQUI -->
                         <button id="add-package-btn" title="Adicionar Novo Tipo de Pacote">+</button>
                     </div>
                     <div id="packages-list">
@@ -70,6 +141,7 @@
                 <div class="viz-controls">
                     <div class="control-hint">🖱️ Arraste para rotacionar</div>
                     <div class="control-hint">🔍 Scroll para zoom</div>
+                    <div class="control-hint" id="bitrem-hint" style="display: none;">📐 Modo Bi-Trem Ativo</div>
                 </div>
                 <!-- Canvas do Three.js será inserido aqui -->
             </div>
@@ -87,7 +159,7 @@
         </footer>
     </div>
 
-    <!-- TEMPLATE PARA NOVOS PACOTES (COM GRID MELHORADO) -->
+    <!-- TEMPLATE PARA NOVOS PACOTES (COM UNIDADES CORRIGIDAS) -->
     <template id="package-template">
         <div class="package-config">
             <div class="package-header">
@@ -95,10 +167,12 @@
                 <button class="remove-btn" title="Remover este tipo">×</button>
             </div>
             <div class="input-grid">
-                <label for="pkg-length-1">Comp:</label><input type="number" class="pkg-length" value="100">
-                <label for="pkg-width-1">Larg:</label><input type="number" class="pkg-width" value="50">
-                <label for="pkg-height-1">Alt:</label><input type="number" class="pkg-height" value="50">
+                <label for="pkg-length-1">Comp(cm):</label><input type="number" class="pkg-length" value="100">
+                <label for="pkg-width-1">Larg(cm):</label><input type="number" class="pkg-width" value="50">
+                <label for="pkg-height-1">Alt(cm):</label><input type="number" class="pkg-height" value="50">
                 <label for="pkg-quantity-1">Qtd:</label><input type="number" class="pkg-quantity" value="10">
+                <label for="pkg-weight-1" class="weight-field" style="display: none;">Peso(kg):</label>
+                <input type="number" class="pkg-weight weight-field" value="1" style="display: none;">
             </div>
         </div>
     </template>
