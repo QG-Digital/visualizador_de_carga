@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/truck-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🚛 Visualizador 3D de Carga para Caminhão</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <!-- Canvas para o efeito de partículas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Botão WhatsApp Flutuante -->
+    <a id="whatsapp-btn" href="https://wa.me/5543996349824?text=Opa%2C%20cheguei%20de%20paraquedas%20pelo%20site%20do%20Visualizador%20de%20Carga!!" target="_blank" rel="noopener noreferrer" title="Fale comigo no WhatsApp">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.488" fill="currentColor"/>
+        </svg>
+    </a>
+
+    <div class="app-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="title-group">
+                    <h1>Visualizador 3D de Carga</h1>
+                    <div class="truck-icon">🚛</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <aside id="control-panel">
+                <section class="panel-section">
+                    <div class="section-header">
+                        <div class="section-title-group">
+                            <span class="section-icon">⚙️</span>
+                            <h2>Configurações Avançadas</h2>
+                        </div>
+                    </div>
+                    <div class="advanced-options">
+                        <div class="option-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="weight-mode-toggle">
+                                <span class="slider"></span>
+                            </label>
+                            <div class="option-info">
+                                <span class="option-title">Modo Peso</span>
+                                <span class="option-desc">Controla capacidade por peso</span>
+                            </div>
+                            <div class="tooltip-icon" data-tooltip="Ativa os campos de 'Peso Máx' no caminhão e 'Peso' nos pacotes. O algoritmo irá respeitar o limite de peso de cada compartimento.">?</div>
+                        </div>
+                        <div class="option-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="fragility-mode-toggle">
+                                <span class="slider"></span>
+                            </label>
+                            <div class="option-info">
+                                <span class="option-title">Modo Fragilidade</span>
+                                <span class="option-desc">Empilha itens frágeis por cima</span>
+                            </div>
+                            <div class="tooltip-icon" data-tooltip="Ativa o campo 'Fragilidade' nos pacotes. O algoritmo irá priorizar colocar itens mais robustos (nível 0) na base e os mais frágeis (nível 3) no topo.">?</div>
+                        </div>
+                        <div class="option-toggle">
+                            <label class="toggle-switch" id="bitrem-toggle-container">
+                                <input type="checkbox" id="bitrem-mode-toggle">
+                                <span class="slider"></span>
+                            </label>
+                            <div class="option-info">
+                                <span class="option-title">Modo Bi-Trem</span>
+                                <span class="option-desc">Dois compartimentos separados</span>
+                            </div>
+                             <div class="tooltip-icon" data-tooltip="Adiciona um segundo compartimento. O algoritmo tentará preencher o primeiro compartimento ao máximo antes de usar o segundo.">?</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel-section">
+                    <div class="section-header">
+                        <div class="section-title-group">
+                            <span class="section-icon">📏</span>
+                            <h2 id="truck-dimensions-title">Dimensões do Caminhão (cm)</h2>
+                        </div>
+                    </div>
+                    <div id="truck-dimensions-container">
+                        <div class="truck-section" id="truck-main">
+                            <h3 class="truck-section-title" id="main-truck-title">Caminhão</h3>
+                            <div class="input-row">
+                                <label for="truck-length">Comprimento:</label>
+                                <input type="number" id="truck-length" value="550" min="1">
+                            </div>
+                            <div class="input-row">
+                                <label for="truck-width">Largura:</label>
+                                <input type="number" id="truck-width" value="220" min="1">
+                            </div>
+                            <div class="input-row">
+                                <label for="truck-height">Altura:</label>
+                                <input type="number" id="truck-height" value="260" min="1">
+                            </div>
+                            <div class="input-row weight-field" style="display: none;">
+                                <label for="truck-weight">Peso Máx (kg):</label>
+                                <input type="number" id="truck-weight" value="100" min="0">
+                            </div>
+                        </div>
+
+                        <div class="truck-section" id="truck-second" style="display: none;">
+                            <h3 class="truck-section-title">Segundo Compartimento</h3>
+                            <div class="input-row">
+                                <label for="truck2-length">Comprimento:</label>
+                                <input type="number" id="truck2-length" value="550" min="1">
+                            </div>
+                            <div class="input-row">
+                                <label for="truck2-width">Largura:</label>
+                                <input type="number" id="truck2-width" value="220" min="1">
+                            </div>
+                            <div class="input-row">
+                                <label for="truck2-height">Altura:</label>
+                                <input type="number" id="truck2-height" value="260" min="1">
+                            </div>
+                            <div class="input-row weight-field" style="display: none;">
+                                <label for="truck2-weight">Peso Máx (kg):</label>
+                                <input type="number" id="truck2-weight" value="10000" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel-section">
+                    <div class="section-header">
+                        <div class="section-title-group">
+                            <span class="section-icon">📦</span>
+                            <h2>Configuração de Pacotes</h2>
+                        </div>
+                        <button id="add-package-btn" title="Adicionar Novo Tipo de Pacote">+</button>
+                    </div>
+                    <div id="packages-list"></div>
+                </section>
+
+                <div class="action-buttons-group">
+                    <button id="calculate-btn" class="action-btn">🧮 Calcular e Visualizar</button>
+                    <button id="pdf-btn" class="action-btn secondary" disabled>📄 Baixar Relatório PDF</button>
+                </div>
+            </aside>
+
+            <div id="visualization-container">
+                <div class="viz-controls">
+                    <div class="control-hint">🖱️ Arraste para rotacionar</div>
+                    <div class="control-hint">🔍 Scroll para zoom</div>
+                    <div class="control-hint" id="bitrem-hint" style="display: none;">📐 Modo Bi-Trem Ativo</div>
+                </div>
+            </div>
+        </main>
+        
+        <div id="status-bar">
+            Pronto para calcular. Preencha os dados e clique em "Calcular e Visualizar".
+        </div>
+
+        <footer class="footer">
+            <span>Desenvolvido com ❤️ por </span>
+            <a href="https://wa.me/5543996349824?text=Opa%2C%20cheguei%20de%20paraquedas%20pelo%20site%20do%20Visualizador%20de%20Carga!!" target="_blank" rel="noopener noreferrer" class="developer-link">Felipe Indejejczak</a>
+        </footer>
+    </div>
+
+    <template id="package-template">
+        <div class="package-config">
+            <div class="package-header">
+                <h3 class="package-title" title="Dê um duplo clique para renomear">Tipo 1</h3>
+                <button class="remove-btn" title="Remover este tipo">×</button>
+            </div>
+            <div class="input-grid">
+                <label>Comp(cm):</label><input type="number" class="pkg-length" value="100" min="1">
+                <label>Larg(cm):</label><input type="number" class="pkg-width" value="50" min="1">
+                <label>Alt(cm):</label><input type="number" class="pkg-height" value="50" min="1">
+                <label>Qtd:</label><input type="number" class="pkg-quantity" value="10" min="1">
+                <div class="weight-field" style="display: none;">
+                    <label>Peso(kg):</label>
+                    <input type="number" class="pkg-weight" value="30" min="0">
+                </div>
+                <div class="fragility-field" style="display: none;">
+                     <label>Fragilidade:</label>
+                    <select class="pkg-fragility">
+                        <option value="0">0 (Robusto)</option>
+                        <option value="1" selected>1 (Normal)</option>
+                        <option value="2">2 (Frágil)</option>
+                        <option value="3">3 (Muito Frágil)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- NOVO: Modal de Carregamento -->
+    <div id="loading-modal" style="display: none;">
+        <div class="loading-content">
+            <h2>Calculando a melhor disposição...</h2>
+            <p>Por favor, aguarde. Isso pode levar alguns segundos para um grande número de pacotes.</p>
+            <div class="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+            <span id="progress-text">0%</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    
+    <script src="script.js"></script>
+  </body>
+</html>
